@@ -1,0 +1,13 @@
+server:
+  port: 8080
+rabbitmq:
+  queueName: downloaded
+  exchange: downloaded-exc
+  routingKey: downloaded-rKey
+resource-service:
+  endpointHost: http://localhost:8081/
+song-service:
+  endpointHost: http://localhost:8082/
+caller:
+  maxRetries: 2
+  backoff: 2000
