@@ -1,13 +1,16 @@
 server:
   port: 8080
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
 rabbitmq:
   queueName: downloaded
   exchange: downloaded-exc
   routingKey: downloaded-rKey
 resource-service:
-  endpointHost: http://localhost:8081/
+  endpointHost: http://${RS_HOST:localhost}:8081/
 song-service:
-  endpointHost: http://localhost:8082/
+  endpointHost: http://${SS_HOST:localhost}:8082/
 caller:
   maxRetries: 2
   backoff: 2000
