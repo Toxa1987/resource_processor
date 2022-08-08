@@ -1,16 +1,26 @@
 server:
-  port: 8080
+  port: 8083
 spring:
+  application:
+    name: resource-processor
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka
 rabbitmq:
   queueName: downloaded
   exchange: downloaded-exc
   routingKey: downloaded-rKey
 resource-service:
-  endpointHost: http://${RS_HOST:localhost}:8081/
+  endpointHost: http://${GATEWAY_HOST:gateway}/rs/
 song-service:
-  endpointHost: http://${SS_HOST:localhost}:8082/
+  endpointHost: http://${GATEWAY_HOST:gateway}/ss/
 caller:
   maxRetries: 2
   backoff: 2000

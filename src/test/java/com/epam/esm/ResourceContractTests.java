@@ -7,6 +7,7 @@ import org.springframework.cloud.contract.spec.internal.HttpStatus;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.cloud.contract.stubrunner.spring.StubRunnerProperties;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @SpringBootTest
+@ActiveProfiles("local")
 @AutoConfigureStubRunner(
         ids = "com.epam.esm:resource-service:0.0.1-SNAPSHOT:stubs:8081",
         stubsMode = StubRunnerProperties.StubsMode.LOCAL
