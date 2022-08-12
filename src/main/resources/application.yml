@@ -21,6 +21,8 @@ resource-service:
   endpointHost: http://${GATEWAY_HOST:gateway}/rs/
 song-service:
   endpointHost: http://${GATEWAY_HOST:gateway}/ss/
+storage-service:
+  endpointHost: http://${GATEWAY_HOST:gateway}/sts/
 caller:
   maxRetries: 2
   backoff: 2000
