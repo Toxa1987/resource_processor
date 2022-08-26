@@ -48,9 +48,15 @@ public class CallerService {
     }
 
     @Retryable(value = {RuntimeException.class}, maxAttemptsExpression = "${caller.maxRetries}", backoff = @Backoff(value = 500L))
-    public Optional<ByteArrayResource> callResourceService(long id) {
+    public Optional<ByteArrayResource> callResourceService(long id, String traceId) {
         log.info(String.format("Call endpoint: %s", String.format(RESOURCE_ENDPOINT_GET, id)));
-        return Optional.of(restTemplate.getForObject(String.format(resourceServiceHost + RESOURCE_ENDPOINT_GET, id), ByteArrayResource.class));
+        HttpHeaders httpHeaders =new HttpHeaders();
+        httpHeaders.set("traceId",traceId);
+        HttpEntity<Void> httpEntity =new HttpEntity<>(httpHeaders);
+        ResponseEntity<ByteArrayResource> response =
+                restTemplate.exchange(String.format(resourceServiceHost + RESOURCE_ENDPOINT_GET, id), HttpMethod.GET, httpEntity,ByteArrayResource.class);
+       // return Optional.of(restTemplate.getForObject(String.format(resourceServiceHost + RESOURCE_ENDPOINT_GET, id), ByteArrayResource.class));
+        return Optional.ofNullable(response.getBody());
     }
 
     @Recover
@@ -60,9 +66,12 @@ public class CallerService {
     }
 
     @Retryable(value = {RuntimeException.class}, maxAttemptsExpression = "${caller.maxRetries}", backoff = @Backoff(value = 500L))
-    public void callSongService(SongMetadata metadata) {
+    public void callSongService(SongMetadata metadata, String traceId) {
         log.info(String.format("Call endpoint: %s", SONG_METADATA_ENDPOINT));
-        restTemplate.postForLocation(songServiceHost + SONG_METADATA_ENDPOINT, metadata);
+        HttpHeaders httpHeaders =new HttpHeaders();
+        httpHeaders.set("traceId",traceId);
+        HttpEntity<SongMetadata> httpEntity =new HttpEntity<>(metadata,httpHeaders);
+        restTemplate.postForLocation(songServiceHost + SONG_METADATA_ENDPOINT, httpEntity);
     }
 
     @Recover
@@ -91,8 +100,9 @@ public class CallerService {
 
 
     @Retryable(value = {RuntimeException.class}, maxAttemptsExpression = "${caller.maxRetries}", backoff = @Backoff(value = 500L))
-    public Optional<Boolean> postToResourceService(SaveSongDto saveSongDto) {
+    public Optional<Boolean> postToResourceService(SaveSongDto saveSongDto, String traceId) {
         HttpHeaders headers = new HttpHeaders();
+        headers.add("traceId",traceId);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
         ContentDisposition contentDisposition = ContentDisposition

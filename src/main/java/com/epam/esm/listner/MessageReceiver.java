@@ -1,8 +1,10 @@
 package com.epam.esm.listner;
 
+import com.epam.esm.model.Message;
 import com.epam.esm.model.SaveResponse;
 import com.epam.esm.service.SongProcessingService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -17,39 +19,14 @@ public class MessageReceiver {
     }
 
     @RabbitListener(queues = "${rabbitmq.queueName}")
-    private void receive(SaveResponse response) {
-        log.info("received :" + response);
-        songProcessingService.process(response.getId());
+    private void receive(Message message) {
+        log.info("received :" + message);
+        MDC.put("traceId",message.getTraceId());
+        try {
+            songProcessingService.process(message.getId(), message.getTraceId());
+        }finally {
+            MDC.remove("traceId");
+        }
     }
 
-
-
-
-
-
-
-  /*  private void sdfsf(){
-        HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-                .responseTimeout(Duration.ofMillis(5000))
-                .doOnConnected(conn ->
-                        conn.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS))
-                                .addHandlerLast(new WriteTimeoutHandler(5000, TimeUnit.MILLISECONDS)));
-        final int size = 16 * 1024 * 1024;
-        final ExchangeStrategies strategies = ExchangeStrategies.builder()
-                .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
-                .build();
-        WebClient client = WebClient.builder()
-                .baseUrl("http://localhost:8081")
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .exchangeStrategies(strategies)
-                .build();
-        Mono<byte[]> songMono = client
-                .get()
-                .uri("/resources/{id}", 1)
-                .exchangeToMono(
-                        res -> res.bodyToMono(ByteArrayResource.class)
-                                .map(ByteArrayResource::getByteArray));
-
-    }*/
 }

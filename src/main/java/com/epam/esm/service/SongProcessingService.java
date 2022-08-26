@@ -30,18 +30,18 @@ public class SongProcessingService {
         this.callerService = callerService;
     }
 
-    public void process(long id) {
-        callerService.callResourceService(id)
+    public void process(long id, String traceId) {
+        callerService.callResourceService(id,traceId)
                 .ifPresent(res -> {
                     SongMetadata metadata = parser.parse(res);
                     metadata.setResourceId(id);
-                    callerService.callSongService(metadata);
+                    callerService.callSongService(metadata,traceId);
                     SaveSongDto saveSongDto = SaveSongDto.builder()
                             .resource(res.getByteArray())
                             .resourceId(id)
                             .storageId(getStorage().getId())
                             .build();
-                    callerService.postToResourceService(saveSongDto);
+                    callerService.postToResourceService(saveSongDto,traceId);
                 });
     }
 
